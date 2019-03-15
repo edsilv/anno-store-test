@@ -13,7 +13,9 @@ export default class AnnoStoreQuery extends Component {
       return {
         queryTimestamp: nextProps.queryTimestamp,
         endpoint: nextProps.endpoint,
+        queryType: nextProps.queryType,
         secret: nextProps.secret,
+        annotation: nextProps.annotation,
         queryResult: null,
         error: null
       };
@@ -48,15 +50,25 @@ export default class AnnoStoreQuery extends Component {
     //console.log(error);
   }
 
+  renderDebug() {
+    const { endpoint, query } = this.state;
+    return [
+      <div>
+        query: {endpoint}
+        {query}
+      </div>
+    ];
+  }
+
   render() {
     const { queryResult, error } = this.state;
 
     if (queryResult) {
-      return <div>query result: {queryResult}</div>;
+      return [this.renderDebug(), <div>query result: {queryResult}</div>];
     } else if (error) {
-      return <div>query error: {error}</div>;
+      return [this.renderDebug(), <div>query error: {error}</div>];
     } else {
-      return <div>no query result</div>;
+      return [this.renderDebug(), <div>no query result</div>];
     }
   }
 
@@ -72,7 +84,7 @@ export default class AnnoStoreQuery extends Component {
   _queryEndpoint() {
     // Cancel any in-progress requests
     // Load new data and update result
-    const { queryTimestamp, endpoint, secret } = this.state;
+    const { queryTimestamp, endpoint, secret, annotation } = this.state;
     const { onQueryResult } = this.props;
 
     // if (endpoint && secret) {
@@ -109,20 +121,7 @@ export default class AnnoStoreQuery extends Component {
 
     let opts = {
       s: secret,
-      annotation: JSON.stringify({
-        type: "annotation",
-        motivation: "supplementing",
-        body: [
-          {
-            id: "sometarget",
-            type: "DataSet",
-            value: {
-              hello: "world"
-            },
-            format: "application/json"
-          }
-        ]
-      })
+      body: annotation
     };
 
     let query = this._buildQuery(opts);
@@ -137,6 +136,7 @@ export default class AnnoStoreQuery extends Component {
       .then(
         queryResult => {
           this.setState({
+            query: query,
             queryResult: queryResult
           });
           onQueryResult(queryResult);
@@ -146,6 +146,7 @@ export default class AnnoStoreQuery extends Component {
         // exceptions from actual bugs in components.
         error => {
           this.setState({
+            query: query,
             error: error.message
           });
           onQueryResult(error);
