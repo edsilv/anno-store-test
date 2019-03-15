@@ -1,14 +1,17 @@
 import React, { Component } from "react";
 
 export default class AnnoStoreQuery extends Component {
-  state = {};
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     // Store prevQuery in state so we can compare when props change.
     // Clear out any previously-loaded result data (so we don't render stale stuff).
-    if (nextProps.query !== prevState.prevQuery) {
+    if (nextProps.queryTimestamp !== prevState.prevQueryTimestamp) {
       return {
-        prevQuery: nextProps.query,
+        prevQueryTimestamp: nextProps.queryTimestamp,
         endpoint: nextProps.endpoint,
         secret: nextProps.secret,
         queryResult: null,
@@ -42,18 +45,18 @@ export default class AnnoStoreQuery extends Component {
 
   componentDidCatch(error, info) {
     // You can also log the error to an error reporting service
-    console.log(error);
+    //console.log(error);
   }
 
   render() {
     const { queryResult, error } = this.state;
 
     if (queryResult) {
-      return <div>result: {queryResult}</div>;
+      return <div>query result: {queryResult}</div>;
     } else if (error) {
-      return <div>error: {error}</div>;
+      return <div>query error: {error}</div>;
     } else {
-      return <div>no result</div>;
+      return <div>no query result</div>;
     }
   }
 
@@ -69,7 +72,7 @@ export default class AnnoStoreQuery extends Component {
   _queryEndpoint() {
     // Cancel any in-progress requests
     // Load new data and update result
-    const { endpoint, secret } = this.state;
+    const { queryTimestamp, endpoint, secret } = this.state;
     const { onQueryResult } = this.props;
 
     // if (endpoint && secret) {
@@ -83,51 +86,70 @@ export default class AnnoStoreQuery extends Component {
     //   }, 1000);
     // }
 
-    if (endpoint && secret) {
-      let opts = {
-        s: secret,
-        annotation: JSON.stringify({
-          type: "annotation",
-          motivation: "supplementing",
-          body: [
-            {
-              id: "sometarget",
-              type: "DataSet",
-              value: {
-                hello: "world"
-              },
-              format: "application/json"
-            }
-          ]
-        })
-      };
-
-      let query = this._buildQuery(opts);
-      let url = `${endpoint}${query}`;
-      let fetchOpts = {
-        method: "POST",
-        json: true
-      };
-
-      fetch(url, fetchOpts)
-        .then(res => res.json())
-        .then(
-          queryResult => {
-            this.setState({
-              queryResult: queryResult
-            });
-            onQueryResult(queryResult);
-          },
-          // Note: it's important to handle errors here
-          // instead of a catch() block so that we don't swallow
-          // exceptions from actual bugs in components.
-          error => {
-            this.setState({
-              error: error.message
-            });
-            onQueryResult(error);
-          }
-        );
+    if (!queryTimestamp) {
+      this.setState({
+        queryResult: "waiting for queries"
+      });
+      return;
     }
+
+    if (!endpoint) {
+      this.setState({
+        error: "no endpoint specified"
+      });
+      return;
+    }
+
+    if (!secret) {
+      this.setState({
+        error: "no secret specified"
+      });
+      return;
+    }
+
+    let opts = {
+      s: secret,
+      annotation: JSON.stringify({
+        type: "annotation",
+        motivation: "supplementing",
+        body: [
+          {
+            id: "sometarget",
+            type: "DataSet",
+            value: {
+              hello: "world"
+            },
+            format: "application/json"
+          }
+        ]
+      })
+    };
+
+    let query = this._buildQuery(opts);
+    let url = `${endpoint}${query}`;
+    let fetchOpts = {
+      method: "POST",
+      json: true
+    };
+
+    fetch(url, fetchOpts)
+      .then(res => res.json())
+      .then(
+        queryResult => {
+          this.setState({
+            queryResult: queryResult
+          });
+          onQueryResult(queryResult);
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        error => {
+          this.setState({
+            error: error.message
+          });
+          onQueryResult(error);
+        }
+      );
   }
 }

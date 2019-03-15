@@ -2,7 +2,12 @@ import React, { Component } from "react";
 import AnnoStoreQuery from "./AnnoStoreQuery";
 
 export default class AnnoStore extends Component {
-  state = {};
+  constructor(props) {
+    super(props);
+    this.state = {};
+
+    this.handleSecretChange = this.handleSecretChange.bind(this);
+  }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     return {
@@ -10,38 +15,59 @@ export default class AnnoStore extends Component {
     };
   }
 
+  handleSecretChange(ev) {
+    this.setState({ secret: ev.target.value });
+  }
+
   render() {
-    const { endpoint, secret, query, queryResult } = this.state;
+    const { endpoint, secret, id, queryTimestamp } = this.state;
 
     if (endpoint) {
       return (
         <div>
-          <input
-            type="text"
-            placeholder="secret"
-            value={secret}
-            onChange={ev =>
-              this.setState({
-                secret: ev.target.value
-              })
-            }
-            style={{ width: "350px" }}
-          />
+          <div>
+            <input
+              type="text"
+              placeholder="secret"
+              value={secret}
+              onChange={this.handleSecretChange}
+              style={{ width: "440px" }}
+            />
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder="id"
+              value={id}
+              onChange={this.handleIdChange}
+              style={{ width: "440px" }}
+            />
+          </div>
+          <div>
+            <select>
+              <option value="create">create</option>
+              <option value="read">read</option>
+              <option value="update">update</option>
+              <option value="delete">delete</option>
+            </select>
+          </div>
+          <div>
+            <textarea placeholder="json" rows="10" cols="60" />
+          </div>
           <button
             onClick={e =>
               this.setState({
-                query: `${endpoint}s=${secret}`
+                queryTimestamp: new Date().getTime()
               })
             }
           >
             submit
           </button>
-          <div>query: {query}</div>
-          {/*<textarea value={queryResult} rows="10" cols="60" />*/}
+          <div>query timestamp: {queryTimestamp}</div>
           <AnnoStoreQuery
             endpoint={endpoint}
             secret={secret}
-            query={query}
+            queryTimestamp={queryTimestamp}
             onQueryResult={r => {
               this.setState({
                 queryResult: r
