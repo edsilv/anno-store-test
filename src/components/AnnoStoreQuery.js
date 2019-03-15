@@ -9,9 +9,9 @@ export default class AnnoStoreQuery extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
     // Store prevQuery in state so we can compare when props change.
     // Clear out any previously-loaded result data (so we don't render stale stuff).
-    if (nextProps.queryTimestamp !== prevState.prevQueryTimestamp) {
+    if (nextProps.queryTimestamp !== prevState.queryTimestamp) {
       return {
-        prevQueryTimestamp: nextProps.queryTimestamp,
+        queryTimestamp: nextProps.queryTimestamp,
         endpoint: nextProps.endpoint,
         secret: nextProps.secret,
         queryResult: null,
