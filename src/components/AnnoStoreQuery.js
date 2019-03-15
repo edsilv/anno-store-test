@@ -121,13 +121,15 @@ export default class AnnoStoreQuery extends Component {
 
     let opts = {
       s: secret,
-      body: annotation
+      body: encodeURIComponent(annotation)
     };
 
     let query = this._buildQuery(opts);
     let url = `${endpoint}${query}`;
     let fetchOpts = {
       method: "POST",
+      mode: "no-cors", // no-cors, cors, *same-origin
+      cache: "no-cache",
       json: true
     };
 
