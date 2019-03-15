@@ -4,9 +4,26 @@ import AnnoStoreQuery from "./AnnoStoreQuery";
 export default class AnnoStore extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      queryType: "create",
+      annotation: JSON.stringify({
+        type: "annotation",
+        motivation: "supplementing",
+        body: [
+          {
+            id: "sometarget",
+            type: "DataSet",
+            value: {
+              hello: "world"
+            },
+            format: "application/json"
+          }
+        ]
+      })
+    };
 
     this.handleSecretChange = this.handleSecretChange.bind(this);
+    this.handleQueryTypeChange = this.handleQueryTypeChange.bind(this);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -19,11 +36,31 @@ export default class AnnoStore extends Component {
     this.setState({ secret: ev.target.value });
   }
 
+  handleQueryTypeChange(ev) {
+    this.setState({ queryType: ev.target.value });
+  }
+
+  handleAnnotationChange(ev) {
+    this.setState({ annotation: ev.target.value });
+  }
+
+  renderDebug() {
+    const { annotation, queryTimestamp } = this.state;
+    return [<div>query timestamp: {queryTimestamp}</div>];
+  }
+
   render() {
-    const { endpoint, secret, id, queryTimestamp } = this.state;
+    const {
+      endpoint,
+      secret,
+      id,
+      queryType,
+      queryTimestamp,
+      annotation
+    } = this.state;
 
     if (endpoint) {
-      return (
+      return [
         <div>
           <div>
             <input
@@ -44,7 +81,7 @@ export default class AnnoStore extends Component {
             />
           </div>
           <div>
-            <select>
+            <select value={queryType} onChange={this.handleQueryTypeChange}>
               <option value="create">create</option>
               <option value="read">read</option>
               <option value="update">update</option>
@@ -52,7 +89,13 @@ export default class AnnoStore extends Component {
             </select>
           </div>
           <div>
-            <textarea placeholder="json" rows="10" cols="60" />
+            <textarea
+              placeholder="anno json"
+              rows="10"
+              cols="60"
+              onChange={this.handleAnnotationChange}
+              value={annotation}
+            />
           </div>
           <button
             onClick={e =>
@@ -63,19 +106,21 @@ export default class AnnoStore extends Component {
           >
             submit
           </button>
-          <div>query timestamp: {queryTimestamp}</div>
-          <AnnoStoreQuery
-            endpoint={endpoint}
-            secret={secret}
-            queryTimestamp={queryTimestamp}
-            onQueryResult={r => {
-              this.setState({
-                queryResult: r
-              });
-            }}
-          />
-        </div>
-      );
+        </div>,
+        this.renderDebug(),
+        <AnnoStoreQuery
+          endpoint={endpoint}
+          secret={secret}
+          queryTimestamp={queryTimestamp}
+          queryType={queryType}
+          annotation={annotation}
+          onQueryResult={r => {
+            this.setState({
+              queryResult: r
+            });
+          }}
+        />
+      ];
     } else {
       return <span>please supply an endpoint to query</span>;
     }
