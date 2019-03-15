@@ -51,13 +51,8 @@ export default class AnnoStoreQuery extends Component {
   }
 
   renderDebug() {
-    const { endpoint, query } = this.state;
-    return [
-      <div>
-        query: {endpoint}
-        {query}
-      </div>
-    ];
+    const { queryUrl } = this.state;
+    return [<div>query: {queryUrl}</div>];
   }
 
   render() {
@@ -72,19 +67,25 @@ export default class AnnoStoreQuery extends Component {
     }
   }
 
-  _buildQuery(query) {
-    return Object.keys(query).reduce((acc, val) => {
-      if (!query[val]) {
+  _stringifyParams(params) {
+    return Object.keys(params).reduce((acc, val) => {
+      if (!params[val]) {
         return acc;
       }
-      return `${acc}${(acc && "&") || "?"}${val}=${query[val]}`;
+      return `${acc}${(acc && "&") || "?"}${val}=${params[val]}`;
     }, "");
   }
 
   _queryEndpoint() {
     // Cancel any in-progress requests
     // Load new data and update result
-    const { queryTimestamp, endpoint, secret, annotation } = this.state;
+    const {
+      queryTimestamp,
+      endpoint,
+      queryType,
+      secret,
+      annotation
+    } = this.state;
     const { onQueryResult } = this.props;
 
     // if (endpoint && secret) {
@@ -121,11 +122,11 @@ export default class AnnoStoreQuery extends Component {
 
     let opts = {
       s: secret,
-      body: encodeURIComponent(annotation)
+      annotation: encodeURIComponent(annotation)
     };
 
-    let query = this._buildQuery(opts);
-    let url = `${endpoint}${query}`;
+    let params = this._stringifyParams(opts);
+    let url = `${endpoint}${queryType}${params}`;
     let fetchOpts = {
       method: "POST",
       mode: "no-cors", // no-cors, cors, *same-origin
@@ -138,7 +139,7 @@ export default class AnnoStoreQuery extends Component {
       .then(
         queryResult => {
           this.setState({
-            query: query,
+            queryUrl: url,
             queryResult: queryResult
           });
           onQueryResult(queryResult);
@@ -148,7 +149,7 @@ export default class AnnoStoreQuery extends Component {
         // exceptions from actual bugs in components.
         error => {
           this.setState({
-            query: query,
+            queryUrl: url,
             error: error.message
           });
           onQueryResult(error);

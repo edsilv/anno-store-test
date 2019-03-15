@@ -5,7 +5,7 @@ export default class AnnoStore extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      queryType: "create",
+      queryType: "save",
       annotation: JSON.stringify({
         type: "annotation",
         motivation: "supplementing",
@@ -83,9 +83,8 @@ export default class AnnoStore extends Component {
           </div>
           <div>
             <select value={queryType} onChange={this.handleQueryTypeChange}>
-              <option value="create">create</option>
-              <option value="read">read</option>
-              <option value="update">update</option>
+              <option value="save">save</option>
+              <option value="edit">edit</option>
               <option value="delete">delete</option>
             </select>
           </div>
