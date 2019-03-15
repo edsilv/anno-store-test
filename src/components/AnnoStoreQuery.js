@@ -11,7 +11,8 @@ export default class AnnoStoreQuery extends Component {
         prevQuery: nextProps.query,
         endpoint: nextProps.endpoint,
         secret: nextProps.secret,
-        queryResult: null
+        queryResult: null,
+        error: null
       };
     }
 
@@ -31,9 +32,9 @@ export default class AnnoStoreQuery extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { queryResult } = this.state;
+    const { error, queryResult } = this.state;
 
-    if (queryResult === null) {
+    if (error === null && queryResult === null) {
       // At this point, we're in the "commit" phase, so it's safe to load the new data.
       this._queryEndpoint();
     }
@@ -71,62 +72,62 @@ export default class AnnoStoreQuery extends Component {
     const { endpoint, secret } = this.state;
     const { onQueryResult } = this.props;
 
-    if (endpoint && secret) {
-      setTimeout(() => {
-        throw new Error("test fail");
-        // const queryResult = "test fail";
-        // this.setState({
-        //   queryResult: queryResult
-        // });
-        // onQueryResult(queryResult);
-      }, 1000);
-    }
-
     // if (endpoint && secret) {
-    //   let opts = {
-    //     s: secret,
-    //     annotation: JSON.stringify({
-    //       type: "annotation",
-    //       motivation: "supplementing",
-    //       body: [
-    //         {
-    //           id: "sometarget",
-    //           type: "DataSet",
-    //           value: {
-    //             hello: "world"
-    //           },
-    //           format: "application/json"
-    //         }
-    //       ]
-    //     })
-    //   };
-
-    //   let query = this._buildQuery(opts);
-    //   let url = `${endpoint}${query}`;
-    //   let fetchOpts = {
-    //     method: "POST",
-    //     json: true
-    //   };
-
-    //   fetch(url, fetchOpts)
-    //     .then(res => res.json())
-    //     .then(
-    //       queryResult => {
-    //         this.setState({
-    //           queryResult: queryResult
-    //         });
-    //         onQueryResult(queryResult);
-    //       },
-    //       // Note: it's important to handle errors here
-    //       // instead of a catch() block so that we don't swallow
-    //       // exceptions from actual bugs in components.
-    //       error => {
-    //         this.setState({
-    //           queryResult: error
-    //         });
-    //         onQueryResult(error);
-    //       }
-    //     );
+    //   setTimeout(() => {
+    //     //throw new Error("test fail");
+    //     const queryResult = "test fail";
+    //     this.setState({
+    //       queryResult: queryResult
+    //     });
+    //     onQueryResult(queryResult);
+    //   }, 1000);
     // }
+
+    if (endpoint && secret) {
+      let opts = {
+        s: secret,
+        annotation: JSON.stringify({
+          type: "annotation",
+          motivation: "supplementing",
+          body: [
+            {
+              id: "sometarget",
+              type: "DataSet",
+              value: {
+                hello: "world"
+              },
+              format: "application/json"
+            }
+          ]
+        })
+      };
+
+      let query = this._buildQuery(opts);
+      let url = `${endpoint}${query}`;
+      let fetchOpts = {
+        method: "POST",
+        json: true
+      };
+
+      fetch(url, fetchOpts)
+        .then(res => res.json())
+        .then(
+          queryResult => {
+            this.setState({
+              queryResult: queryResult
+            });
+            onQueryResult(queryResult);
+          },
+          // Note: it's important to handle errors here
+          // instead of a catch() block so that we don't swallow
+          // exceptions from actual bugs in components.
+          error => {
+            this.setState({
+              error: error.message
+            });
+            onQueryResult(error);
+          }
+        );
+    }
   }
 }
