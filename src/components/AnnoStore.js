@@ -4,9 +4,12 @@ import AnnoStoreQuery from "./AnnoStoreQuery";
 export default class AnnoStore extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      queryType: "create"
+    };
 
     this.handleSecretChange = this.handleSecretChange.bind(this);
+    this.handleQueryTypeChange = this.handleQueryTypeChange.bind(this);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -19,8 +22,12 @@ export default class AnnoStore extends Component {
     this.setState({ secret: ev.target.value });
   }
 
+  handleQueryTypeChange(ev) {
+    this.setState({ queryType: ev.target.value });
+  }
+
   render() {
-    const { endpoint, secret, id, queryTimestamp } = this.state;
+    const { endpoint, secret, id, queryTimestamp, queryType } = this.state;
 
     if (endpoint) {
       return (
@@ -44,7 +51,7 @@ export default class AnnoStore extends Component {
             />
           </div>
           <div>
-            <select>
+            <select value={queryType} onChange={this.handleQueryTypeChange}>
               <option value="create">create</option>
               <option value="read">read</option>
               <option value="update">update</option>
