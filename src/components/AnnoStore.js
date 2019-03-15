@@ -24,6 +24,7 @@ export default class AnnoStore extends Component {
 
     this.handleSecretChange = this.handleSecretChange.bind(this);
     this.handleQueryTypeChange = this.handleQueryTypeChange.bind(this);
+    this.handleAnnotationChange = this.handleAnnotationChange.bind(this);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
