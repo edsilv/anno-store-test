@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import AnnoStoreQuery from "./AnnoStoreQuery";
+import QueryType from "../QueryType";
 
 export default class AnnoStore extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      queryType: "create",
+      queryType: QueryType.SAVE,
       annotation: JSON.stringify({
         type: "annotation",
         motivation: "supplementing",
@@ -46,8 +47,8 @@ export default class AnnoStore extends Component {
   }
 
   renderDebug() {
-    const { annotation, queryTimestamp } = this.state;
-    return [<div>query timestamp: {queryTimestamp}</div>];
+    const { queryTimestamp } = this.state;
+    return <div>query timestamp: {queryTimestamp}</div>;
   }
 
   render() {
@@ -61,7 +62,7 @@ export default class AnnoStore extends Component {
     } = this.state;
 
     if (endpoint) {
-      return [
+      return (
         <div>
           <div>
             <input
@@ -83,10 +84,9 @@ export default class AnnoStore extends Component {
           </div>
           <div>
             <select value={queryType} onChange={this.handleQueryTypeChange}>
-              <option value="create">create</option>
-              <option value="read">read</option>
-              <option value="update">update</option>
-              <option value="delete">delete</option>
+              <option value={QueryType.SAVE}>save</option>
+              <option value={QueryType.EDIT}>edit</option>
+              <option value={QueryType.DELETE}>delete</option>
             </select>
           </div>
           <div>
@@ -107,21 +107,21 @@ export default class AnnoStore extends Component {
           >
             submit
           </button>
-        </div>,
-        this.renderDebug(),
-        <AnnoStoreQuery
-          endpoint={endpoint}
-          secret={secret}
-          queryTimestamp={queryTimestamp}
-          queryType={queryType}
-          annotation={annotation}
-          onQueryResult={r => {
-            this.setState({
-              queryResult: r
-            });
-          }}
-        />
-      ];
+          {this.renderDebug()}
+          <AnnoStoreQuery
+            endpoint={endpoint}
+            secret={secret}
+            queryTimestamp={queryTimestamp}
+            queryType={queryType}
+            annotation={annotation}
+            onQueryResult={r => {
+              this.setState({
+                queryResult: r
+              });
+            }}
+          />
+        </div>
+      )
     } else {
       return <span>please supply an endpoint to query</span>;
     }

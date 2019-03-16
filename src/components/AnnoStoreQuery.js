@@ -51,40 +51,56 @@ export default class AnnoStoreQuery extends Component {
   }
 
   renderDebug() {
-    const { endpoint, query } = this.state;
-    return [
-      <div>
-        query: {endpoint}
-        {query}
-      </div>
-    ];
+    const { queryUrl } = this.state;
+    return <div>query: {queryUrl}</div>;
   }
 
   render() {
     const { queryResult, error } = this.state;
 
     if (queryResult) {
-      return [this.renderDebug(), <div>query result: {queryResult}</div>];
+      return (
+        <div>
+          {this.renderDebug()} 
+          <div>query result: {queryResult}</div>
+        </div>        
+      );
     } else if (error) {
-      return [this.renderDebug(), <div>query error: {error}</div>];
+      return (
+        <div>
+          {this.renderDebug()}
+          <div>query error: {error}</div>
+        </div>
+      );
     } else {
-      return [this.renderDebug(), <div>no query result</div>];
+      return (
+        <div>
+          {this.renderDebug()}
+          <div>no query result</div>
+        </div>
+      );
     }
   }
 
-  _buildQuery(query) {
-    return Object.keys(query).reduce((acc, val) => {
-      if (!query[val]) {
+  _stringifyParams(params) {
+    return Object.keys(params).reduce((acc, val) => {
+      if (!params[val]) {
         return acc;
       }
-      return `${acc}${(acc && "&") || "?"}${val}=${query[val]}`;
+      return `${acc}${(acc && "&") || "?"}${val}=${params[val]}`;
     }, "");
   }
 
   _queryEndpoint() {
     // Cancel any in-progress requests
     // Load new data and update result
-    const { queryTimestamp, endpoint, secret, annotation } = this.state;
+    const {
+      queryTimestamp,
+      endpoint,
+      queryType,
+      secret,
+      annotation
+    } = this.state;
     const { onQueryResult } = this.props;
 
     // if (endpoint && secret) {
@@ -121,13 +137,15 @@ export default class AnnoStoreQuery extends Component {
 
     let opts = {
       s: secret,
-      body: annotation
+      annotation: encodeURIComponent(annotation)
     };
 
-    let query = this._buildQuery(opts);
-    let url = `${endpoint}${query}`;
+    let params = this._stringifyParams(opts);
+    let url = `${endpoint}${queryType}${params}`;
     let fetchOpts = {
-      method: "POST",
+      method: "GET",
+      mode: "cors", // no-cors, cors, *same-origin
+      cache: "no-cache",
       json: true
     };
 
@@ -136,8 +154,8 @@ export default class AnnoStoreQuery extends Component {
       .then(
         queryResult => {
           this.setState({
-            query: query,
-            queryResult: queryResult
+            queryUrl: url,
+            queryResult: JSON.stringify(queryResult)
           });
           onQueryResult(queryResult);
         },
@@ -146,7 +164,7 @@ export default class AnnoStoreQuery extends Component {
         // exceptions from actual bugs in components.
         error => {
           this.setState({
-            query: query,
+            queryUrl: url,
             error: error.message
           });
           onQueryResult(error);
