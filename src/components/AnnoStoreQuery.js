@@ -128,8 +128,8 @@ export default class AnnoStoreQuery extends Component {
     let params = this._stringifyParams(opts);
     let url = `${endpoint}${queryType}${params}`;
     let fetchOpts = {
-      method: "POST",
-      mode: "no-cors", // no-cors, cors, *same-origin
+      method: "GET",
+      mode: "cors", // no-cors, cors, *same-origin
       cache: "no-cache",
       json: true
     };
@@ -140,7 +140,7 @@ export default class AnnoStoreQuery extends Component {
         queryResult => {
           this.setState({
             queryUrl: url,
-            queryResult: queryResult
+            queryResult: queryResult.json()
           });
           onQueryResult(queryResult);
         },

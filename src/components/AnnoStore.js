@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import AnnoStoreQuery from "./AnnoStoreQuery";
+import QueryType from "../QueryType";
 
 export default class AnnoStore extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      queryType: "save",
+      queryType: QueryType.SAVE,
       annotation: JSON.stringify({
         type: "annotation",
         motivation: "supplementing",
@@ -46,7 +47,7 @@ export default class AnnoStore extends Component {
   }
 
   renderDebug() {
-    const { annotation, queryTimestamp } = this.state;
+    const { queryTimestamp } = this.state;
     return [<div>query timestamp: {queryTimestamp}</div>];
   }
 
@@ -83,9 +84,9 @@ export default class AnnoStore extends Component {
           </div>
           <div>
             <select value={queryType} onChange={this.handleQueryTypeChange}>
-              <option value="save">save</option>
-              <option value="edit">edit</option>
-              <option value="delete">delete</option>
+              <option value={QueryType.SAVE}>save</option>
+              <option value={QueryType.EDIT}>edit</option>
+              <option value={QueryType.DELETE}>delete</option>
             </select>
           </div>
           <div>
