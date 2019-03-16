@@ -52,18 +52,33 @@ export default class AnnoStoreQuery extends Component {
 
   renderDebug() {
     const { queryUrl } = this.state;
-    return [<div>query: {queryUrl}</div>];
+    return <div>query: {queryUrl}</div>;
   }
 
   render() {
     const { queryResult, error } = this.state;
 
     if (queryResult) {
-      return [this.renderDebug(), <div>query result: {queryResult}</div>];
+      return (
+        <div>
+          {this.renderDebug()} 
+          <div>query result: {queryResult}</div>
+        </div>        
+      );
     } else if (error) {
-      return [this.renderDebug(), <div>query error: {error}</div>];
+      return (
+        <div>
+          {this.renderDebug()}
+          <div>query error: {error}</div>
+        </div>
+      );
     } else {
-      return [this.renderDebug(), <div>no query result</div>];
+      return (
+        <div>
+          {this.renderDebug()}
+          <div>no query result</div>
+        </div>
+      );
     }
   }
 
@@ -128,7 +143,7 @@ export default class AnnoStoreQuery extends Component {
     let params = this._stringifyParams(opts);
     let url = `${endpoint}${queryType}${params}`;
     let fetchOpts = {
-      method: "POST",
+      method: "GET",
       mode: "cors", // no-cors, cors, *same-origin
       cache: "no-cache",
       json: true
@@ -140,7 +155,7 @@ export default class AnnoStoreQuery extends Component {
         queryResult => {
           this.setState({
             queryUrl: url,
-            queryResult: queryResult
+            queryResult: JSON.stringify(queryResult)
           });
           onQueryResult(queryResult);
         },
