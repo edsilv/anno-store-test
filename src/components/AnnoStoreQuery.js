@@ -33,7 +33,7 @@ export default class AnnoStoreQuery extends Component {
   componentDidMount() {
     // It's preferable in most cases to wait until after mounting to load data.
     // See below for a bit more context...
-    this._queryEndpoint();
+    this.queryEndpoint();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -41,7 +41,7 @@ export default class AnnoStoreQuery extends Component {
 
     if (error === null && queryResult === null) {
       // At this point, we're in the "commit" phase, so it's safe to load the new data.
-      this._queryEndpoint();
+      this.queryEndpoint();
     }
   }
 
@@ -82,7 +82,7 @@ export default class AnnoStoreQuery extends Component {
     }
   }
 
-  _stringifyParams(params) {
+  createGETParams(params) {
     return Object.keys(params).reduce((acc, val) => {
       if (!params[val]) {
         return acc;
@@ -91,7 +91,7 @@ export default class AnnoStoreQuery extends Component {
     }, "");
   }
 
-  _queryEndpoint() {
+  queryEndpoint() {
     // Cancel any in-progress requests
     // Load new data and update result
     const {
@@ -135,40 +135,65 @@ export default class AnnoStoreQuery extends Component {
       return;
     }
 
-    let opts = {
+    let data = {
       s: secret,
       annotation: encodeURIComponent(annotation)
     };
 
-    let params = this._stringifyParams(opts);
-    let url = `${endpoint}${queryType}${params}`;
-    let fetchOpts = {
-      method: "GET",
-      mode: "cors", // no-cors, cors, *same-origin
-      cache: "no-cache",
-      json: true
-    };
+    //let url = `${endpoint}${queryType}${this.createGETParams(data)}`;
+    //this.getData(url);
 
-    fetch(url, fetchOpts)
-      .then(res => res.json())
-      .then(
-        queryResult => {
-          this.setState({
-            queryUrl: url,
-            queryResult: JSON.stringify(queryResult)
-          });
-          onQueryResult(queryResult);
-        },
-        // Note: it's important to handle errors here
-        // instead of a catch() block so that we don't swallow
-        // exceptions from actual bugs in components.
-        error => {
-          this.setState({
-            queryUrl: url,
-            error: error.message
-          });
-          onQueryResult(error);
-        }
-      );
+    let url = `${endpoint}${queryType}`;
+
+    this.postData(url, data).then(
+      queryResult => {
+        this.setState({
+          queryUrl: url,
+          queryResult: JSON.stringify(queryResult)
+        });
+        onQueryResult(queryResult);
+      },
+      // Note: it's important to handle errors here
+      // instead of a catch() block so that we don't swallow
+      // exceptions from actual bugs in components.
+      error => {
+        this.setState({
+          queryUrl: url,
+          error: error.message
+        });
+        onQueryResult(error);
+      }
+    );
+  }
+
+  getData(url = ``) {
+    return fetch(url, {
+      method: "GET", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, cors, *same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json"
+      },
+      redirect: "follow", // manual, *follow, error
+      referrer: "no-referrer" // no-referrer, *client
+    }).then(response => response.json()); // parses response to JSON
+  }
+
+  postData(url = ``, data = {}) {
+    // Default options are marked with *
+    return fetch(url, {
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, cors, *same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json"
+        // "Content-Type": "application/x-www-form-urlencoded",
+      },
+      redirect: "follow", // manual, *follow, error
+      referrer: "no-referrer", // no-referrer, *client
+      body: JSON.stringify(data) // body data type must match "Content-Type" header
+    }).then(response => response.json()); // parses response to JSON
   }
 }
