@@ -121,7 +121,7 @@ export default class AnnoStore extends Component {
             }}
           />
         </div>
-      )
+      );
     } else {
       return <span>please supply an endpoint to query</span>;
     }

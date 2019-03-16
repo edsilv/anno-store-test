@@ -61,9 +61,9 @@ export default class AnnoStoreQuery extends Component {
     if (queryResult) {
       return (
         <div>
-          {this.renderDebug()} 
+          {this.renderDebug()}
           <div>query result: {queryResult}</div>
-        </div>        
+        </div>
       );
     } else if (error) {
       return (
