@@ -129,7 +129,7 @@ export default class AnnoStoreQuery extends Component {
     let url = `${endpoint}${queryType}${params}`;
     let fetchOpts = {
       method: "POST",
-      mode: "no-cors", // no-cors, cors, *same-origin
+      mode: "cors", // no-cors, cors, *same-origin
       cache: "no-cache",
       json: true
     };
