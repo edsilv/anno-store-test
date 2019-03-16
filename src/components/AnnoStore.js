@@ -48,7 +48,7 @@ export default class AnnoStore extends Component {
 
   renderDebug() {
     const { queryTimestamp } = this.state;
-    return [<div>query timestamp: {queryTimestamp}</div>];
+    return <div>query timestamp: {queryTimestamp}</div>;
   }
 
   render() {
@@ -62,7 +62,7 @@ export default class AnnoStore extends Component {
     } = this.state;
 
     if (endpoint) {
-      return [
+      return (
         <div>
           <div>
             <input
@@ -107,21 +107,21 @@ export default class AnnoStore extends Component {
           >
             submit
           </button>
-        </div>,
-        this.renderDebug(),
-        <AnnoStoreQuery
-          endpoint={endpoint}
-          secret={secret}
-          queryTimestamp={queryTimestamp}
-          queryType={queryType}
-          annotation={annotation}
-          onQueryResult={r => {
-            this.setState({
-              queryResult: r
-            });
-          }}
-        />
-      ];
+          {this.renderDebug()}
+          <AnnoStoreQuery
+            endpoint={endpoint}
+            secret={secret}
+            queryTimestamp={queryTimestamp}
+            queryType={queryType}
+            annotation={annotation}
+            onQueryResult={r => {
+              this.setState({
+                queryResult: r
+              });
+            }}
+          />
+        </div>
+      );
     } else {
       return <span>please supply an endpoint to query</span>;
     }

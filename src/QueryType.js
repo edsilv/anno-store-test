@@ -1,5 +1,5 @@
-export default class QueryType {
-  static SAVE = "save";
-  static EDIT = "edit";
-  static DELETE = "delete";
-}
+export default {
+  SAVE: "save",
+  EDIT: "edit",
+  DELETE: "delete"
+};
